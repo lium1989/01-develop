@@ -1,0 +1,164 @@
+applyInternalClb
+    ApplyCLBResource
+        根据instanceId搜vpc&subnet 信息并入库clb_info | GetInstanceData
+        根据instanceId搜&InstanceData{}
+        内网clb申请
+        公网clb申请
+            复用模式
+            创建模式
+
+checkClb
+    CheckClbResource
+        根据instanceId搜&InstanceData{} | GetInstanceData
+        CheckLBStatus
+            内网 | CheckLBStatus
+            非内网 | CheckLBStatus
+
+bindEsNodeToLb
+    GetESInstanceById
+    BindESNodeToInternalLB
+        GetInstanceData
+        内网clb选出listener
+        没有指定cvm 就从全量cvm捞出可用的cvm集合
+        获取listener已绑定的后端cvm 集合
+        做差集
+        未绑定cvm 调用云API 执行绑定
+            generateBindESNodeParams
+            BindCVMToLB
+
+stopLB  
+    thisRegionHaveNoHttpListener 没有直接退出 （这里配置是热更新）
+    ModifyCVMWeight （当后端CVM的权重为0时，负载均衡器会自动将该CVM从负载均衡器的后端服务列表中删除，即停止将流量转发到该CVM上）
+
+
+stopOptionalWebServiceLB
+    thisRegionHaveNoHttpListener 没有直接退出 （这里配置是热更新）
+    judgeOptionalWebServiceTaskByParams 是否跳过
+    ModifyOptionalWebServiceCVMWeight
+
+
+applyClb
+    thisRegionHaveNoHttpListener 没有直接退出 （这里配置是热更新）
+    ApplyCLBResource
+
+bindEsWebToLb
+    thisRegionHaveNoHttpListener 没有直接退出 （这里配置是热更新）
+    listenerType es的话可能没开启公网访问
+    BindESWebToLB
+        筛选listener，取出forwardRule
+        如果forwardRule已经绑定，则判断是否绑定成功
+        generateBindESWebParams
+        如果forwardRule未绑定， 则调用API绑定 BindCVMToLB
+
+destoryCLB
+    thisRegionHaveNoHttpListener 没有直接退出 （这里配置是热更新）
+    DestoryCLBResource
+        lbstatus lb在不在
+        小规格集群则直接销毁clb，非小规格集群则只销毁转发规则
+
+
+destoryInternalClb
+    thisRegionHaveNoHttpListener 没有直接退出 （这里配置是热更新）
+    DestoryCLBResource
+
+
+updateOptionalWebServiceClb
+    thisRegionHaveNoHttpListener 没有直接退出 （这里配置是热更新）
+    judgeOptionalWebServiceTaskByParams
+    GetOptionalWebServiceByInstanceIdAndType 里面有是否开通外网访问
+    GetCvmInfoList 拿到已下线的cvm
+    UnbindEsWebOptionalWebService
+        generateOptionalWebServiceUnbindCvmParams
+        UnbindLBCVM
+
+
+bindEsWebOptionalWebServiceToLb
+    thisRegionHaveNoHttpListener 没有直接退出 （这里配置是热更新）
+    judgeOptionalWebServiceTaskByParams 
+    GetOptionalWebServiceByInstanceIdAndType 里面有是否开通外网访问
+    GetCvmInfoList 拿到已下线的cvm
+    BindOptionalWebServiceToLB
+
+
+destroyOldCLB（销毁新的资源一般是创建失败）
+    thisRegionHaveNoHttpListener 没有直接退出 （这里配置是热更新）
+    DestoryOldCLBResource
+
+
+updateClbRecord
+    thisRegionHaveNoHttpListener 没有直接退出 （这里配置是热更新）
+    不能删除共享clb
+    updateCLBRecord
+    拿到vpcUid
+    各种插表
+
+updateClb
+    thisRegionHaveNoHttpListener 没有直接退出 （这里配置是热更新）
+    listenerType es的话可能没开启公网访问
+    UnbindEsWeb
+        generateUnbindCvmParams
+        UnbindLBCVM
+
+
+updateEsClb
+    thisRegionHaveNoHttpListener 没有直接退出 （这里配置是热更新）
+    listenerType es的话可能没开启公网访问
+    UnbindEsWeb
+
+
+prepareUpdateEsClb
+    nextStepParam["clb_listener_type"] = "ES" 直接返回个这个map
+
+
+bindOptionalWebServiceToLB
+    thisRegionHaveNoHttpListener 没有直接退出 （这里配置是热更新）
+    judgeOptionalWebServiceTaskByParams
+    GetOptionalWebServiceByInstanceIdAndType 里面有是否开通外网访问
+    BindOptionalWebServiceToLB
+
+
+createLBListenerForOptionalWebService
+    thisRegionHaveNoHttpListener 没有直接退出 （这里配置是热更新）
+    judgeOptionalWebServiceTaskByParams
+    listenerType es的话可能没开启公网访问
+    CreateLBListener
+
+
+createLBForwardRuleForOptionalWebService
+    thisRegionHaveNoHttpListener 没有直接退出 （这里配置是热更新）
+    judgeOptionalWebServiceTaskByParams
+    GetOptionalWebServiceByInstanceIdAndType
+    CreateLBForwardRule
+
+
+bindProxyClusterToLb
+    listenerType es的话可能没开启公网访问
+    BindProxyClusterToLB
+        筛选listener，取出forwardRule
+        如果forwardRule已经绑定，则判断是否绑定成功
+        generateBindProxyClusterParams
+        如果forwardRule未绑定， 则调用API绑定 BindCVMToLB
+
+createLBListener
+    listenerType es的话可能没开启公网访问
+    CreateLBListeners
+
+
+createLBForwardRule
+    listenerType es的话可能没开启公网访问
+    CreateLBForwardRules
+        创建内外网两套CLB转发规则
+
+
+bindEsWebToLb
+    thisRegionHaveNoHttpListener 没有直接退出 （这里配置是热更新）
+    listenerType es的话可能没开启公网访问
+    BindESWebToLB
+        筛选listener，取出forwardRule
+        如果forwardRule已经绑定，则判断是否绑定成功
+        generateBindESWebParams
+        如果forwardRule未绑定， 则调用API绑定 BindCVMToLB
+
+
+.以上每一行是一个方法，如果是英文名就是方法名，如果是中文就是方法作用说明。方法与子方法通过缩进的方式进行组合，方法与方法之间有空行进行分割。请描述下都有哪些方法，用表格列给我
+
